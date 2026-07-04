@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOVK — Demo Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --linen:#F7F5F2;--white:#FFF;--ink:#1C1C1A;--ink-soft:#6B6760;
+  --ink-faint:#B8B4AF;--gold:#C4A882;--gold-dim:rgba(196,168,130,0.15);
+  --graphite:#2D2D2D;--border:rgba(28,28,26,0.1);--border2:rgba(28,28,26,0.06);
+}
+html{scroll-behavior:smooth}
+body{background:var(--linen);color:var(--ink);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh}
+a{text-decoration:none;color:inherit}
+button{font-family:'Inter',sans-serif;cursor:pointer;border:none;outline:none}
+
+/* HEADER */
+header{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.hdr{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px}
+.brand{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:.18em;text-transform:uppercase;cursor:pointer}
+.hdr-nav{display:flex;gap:28px}
+.hdr-nav a{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);transition:color .15s}
+.hdr-nav a:hover{color:var(--ink)}
+.hdr-right{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-soft)}
+.cart-badge{background:var(--graphite);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+
+.strip{background:var(--graphite);color:#fff;text-align:center;padding:10px;font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+.strip span{color:var(--gold)}
+
+/* PAGES */
+.page{display:none}
+.page.active{display:block}
+
+/* CATALOG */
+.cat-hdr{max-width:1280px;margin:0 auto;padding:40px 32px 24px;display:flex;align-items:baseline;justify-content:space-between}
+.cat-title{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300}
+.cat-count{font-size:12px;color:var(--ink-faint)}
+.grid{max-width:1280px;margin:0 auto;padding:0 32px 64px;display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
+
+.p-card{background:var(--white);cursor:pointer;position:relative;overflow:hidden;transition:transform .2s}
+.p-card:hover{transform:translateY(-2px)}
+.p-card:hover .p-overlay{opacity:1}
+.p-card:hover .p-img{transform:scale(1.03)}
+.p-img-wrap{aspect-ratio:3/4;overflow:hidden;background:#EAE7E3;position:relative}
+.p-img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.p-overlay{position:absolute;inset:0;background:rgba(28,28,26,.03);opacity:0;transition:opacity .2s;display:flex;align-items:flex-end;padding:16px}
+.p-hint{background:rgba(255,255,255,.95);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:8px 14px;color:var(--ink);font-weight:500}
+.p-body{padding:14px 16px 18px}
+.p-cat{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px}
+.p-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;line-height:1.25;margin-bottom:6px}
+.p-price{font-size:13px;color:var(--ink-soft)}
+.p-price strong{color:var(--ink);font-weight:500}
+
+/* PRODUCT PAGE */
+.pp-wrap{max-width:1280px;margin:0 auto;padding:32px;display:grid;grid-template-columns:1fr 1fr;gap:48px;min-height:80vh}
+.pp-main-img{aspect-ratio:3/4;overflow:hidden;background:#EAE7E3}
+.pp-main-img img{width:100%;height:100%;object-fit:cover}
+.pp-info{padding:8px 0;display:flex;flex-direction:column}
+.pp-breadcrumb{font-size:11px;color:var(--ink-faint);margin-bottom:20px;display:flex;gap:8px}
+.pp-breadcrumb span{cursor:pointer;transition:color .15s}
+.pp-breadcrumb span:hover{color:var(--ink)}
+.pp-cat{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px}
+.pp-name{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;line-height:1.15;margin-bottom:14px}
+.pp-price{font-size:22px;font-weight:500;margin-bottom:24px}
+.pp-desc{font-size:14px;line-height:1.75;color:var(--ink-soft);margin-bottom:28px}
+
+.size-lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+.size-row{display:flex;gap:6px;margin-bottom:28px;flex-wrap:wrap}
+.sz{border:1px solid var(--border);background:none;padding:7px 13px;font-size:12.5px;transition:all .15s;color:var(--ink)}
+.sz:hover,.sz.active{border-color:var(--ink);background:var(--ink);color:#fff}
+
+.btn-buy{width:100%;padding:15px;background:var(--graphite);color:#fff;font-size:12.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;transition:background .15s;margin-bottom:10px}
+.btn-buy:hover{background:#000}
+
+.btn-tryon{width:100%;padding:14px;background:transparent;border:1.5px solid var(--gold);color:var(--gold);font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:9px;position:relative;overflow:hidden}
+.btn-tryon::before{content:'';position:absolute;inset:0;background:var(--gold-dim);transform:translateX(-100%);transition:transform .3s}
+.btn-tryon:hover::before{transform:translateX(0)}
+.btn-tryon:hover{color:var(--ink)}
+.btn-tryon svg{width:15px;height:15px;flex-shrink:0;position:relative;z-index:1}
+.btn-tryon span{position:relative;z-index:1}
+
+.pp-features{margin-top:28px;border-top:1px solid var(--border);padding-top:20px;display:flex;flex-direction:column;gap:10px}
+.pp-feat{display:flex;gap:12px;font-size:12.5px;color:var(--ink-soft)}
+.pp-feat-icon{color:var(--gold);flex-shrink:0}
+
+/* TRY-ON POPUP — збільшений */
+.tryon-bg{display:none;position:fixed;inset:0;background:rgba(28,28,26,.75);z-index:300;backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+.tryon-bg.open{display:flex}
+
+/* Upload step — компактний */
+.tryon-box{background:var(--white);width:100%;max-width:520px;padding:36px;position:relative}
+
+/* Result step — широкий */
+.tryon-box.result-mode{max-width:860px}
+
+.tryon-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;color:var(--ink-faint);cursor:pointer;transition:color .15s}
+.tryon-close:hover{color:var(--ink)}
+
+.tryon-step{display:none}
+.tryon-step.active{display:block}
+
+.tryon-eyebrow{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;font-weight:500}
+.tryon-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;margin-bottom:10px}
+.tryon-sub{font-size:13.5px;color:var(--ink-soft);line-height:1.6;margin-bottom:24px}
+
+.tryon-product{display:flex;gap:14px;align-items:center;border:1px solid var(--border2);padding:12px 14px;margin-bottom:24px;background:var(--linen)}
+.tryon-product img{width:48px;height:60px;object-fit:cover;background:#EAE7E3;flex-shrink:0}
+.tryon-pname{font-family:'Cormorant Garamond',serif;font-size:16px}
+.tryon-pprice{font-size:12px;color:var(--ink-soft);margin-top:2px}
+
+.upload-zone{border:1.5px dashed var(--gold);padding:36px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin-bottom:16px}
+.upload-zone:hover{background:var(--gold-dim)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:28px;margin-bottom:10px;display:block}
+.upload-txt{font-size:13.5px;color:var(--ink-soft);line-height:1.6}
+.upload-txt strong{color:var(--ink)}
+
+.upload-tips{font-size:11.5px;color:var(--ink-faint);line-height:1.6;list-style:none;display:flex;flex-direction:column;gap:3px}
+.upload-tips li::before{content:"→ ";color:var(--gold)}
+
+/* Processing */
+.proc-wrap{text-align:center;padding:48px 0}
+.spinner{width:44px;height:44px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.proc-txt{font-size:15px;color:var(--ink-soft);margin-bottom:6px}
+.proc-sub{font-size:12px;color:var(--ink-faint)}
+
+/* Result — великий двоколонковий layout */
+.result-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+.result-col{position:relative;display:flex;flex-direction:column}
+.result-lbl{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px;font-weight:500}
+.result-img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block}
+
+.result-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-cart-r{padding:14px;background:var(--graphite);color:#fff;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;transition:background .15s}
+.btn-cart-r:hover{background:#000}
+.btn-retry-r{padding:14px;background:none;border:1.5px solid var(--border);font-size:12px;color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-retry-r:hover{border-color:var(--ink);color:var(--ink)}
+
+/* Error */
+.err-wrap{text-align:center;padding:20px 0}
+.err-icon{font-size:32px;margin-bottom:14px;display:block}
+.err-txt{font-size:14px;margin-bottom:6px}
+.err-sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:24px;line-height:1.6}
+.btn-retry-e{padding:12px 28px;background:none;border:1px solid var(--border);font-size:12px;color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase;transition:all .15s}
+.btn-retry-e:hover{border-color:var(--ink);color:var(--ink)}
+
+/* Toast */
+.toast{position:fixed;bottom:32px;right:32px;background:var(--graphite);color:#fff;padding:14px 20px;font-size:13px;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;z-index:500}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* Footer */
+.ftr{border-top:1px solid var(--border);padding:24px 32px;display:flex;justify-content:space-between;align-items:center;max-width:1280px;margin:0 auto}
+.ftr-brand{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;letter-spacing:.15em;text-transform:uppercase}
+.ftr-note{font-size:11px;color:var(--ink-faint)}
+
+@media(max-width:900px){
+  .result-layout{grid-template-columns:1fr}
+  .result-actions{grid-template-columns:1fr}
+  .tryon-box.result-mode{max-width:520px}
+}
+@media(max-width:768px){
+  .grid{grid-template-columns:repeat(2,1fr);padding:0 16px 48px}
+  .cat-hdr{padding:24px 16px 16px}
+  .hdr{padding:0 16px}
+  .hdr-nav{display:none}
+  .pp-wrap{grid-template-columns:1fr;padding:16px;gap:24px}
+  .pp-main-img{aspect-ratio:4/3}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="strip">Нова колекція · <span>Приміряйте онлайн</span> — AI примірка на вашому фото</div>
+
+<header>
+  <div class="hdr">
+    <div class="brand" onclick="goTo('catalog')">VOVK</div>
+    <nav class="hdr-nav">
+      <a href="#" onclick="goTo('catalog');return false">Жінкам</a>
+      <a href="#">Чоловікам</a>
+      <a href="#">Нова колекція</a>
+      <a href="#">Про бренд</a>
+    </nav>
+    <div class="hdr-right">Кошик <div class="cart-badge" id="cartBadge">0</div></div>
+  </div>
+</header>
+
+<!-- CATALOG -->
+<div class="page active" id="page-catalog">
+  <div class="cat-hdr">
+    <h1 class="cat-title">Нова колекція</h1>
+    <span class="cat-count">5 товарів</span>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="ftr"><div class="ftr-brand">VOVK</div><div class="ftr-note">Demo Store · TryOn Studio Integration</div></div>
+</div>
+
+<!-- PRODUCT PAGE -->
+<div class="page" id="page-product">
+  <div class="pp-wrap">
+    <div>
+      <div class="pp-main-img"><img id="pp-img" src="" alt=""></div>
+    </div>
+    <div class="pp-info">
+      <div class="pp-breadcrumb">
+        <span onclick="goTo('catalog')">Каталог</span>
+        <span>·</span>
+        <span id="pp-breadcat"></span>
+      </div>
+      <div class="pp-cat" id="pp-cat"></div>
+      <h1 class="pp-name" id="pp-name"></h1>
+      <div class="pp-price" id="pp-price"></div>
+      <p class="pp-desc" id="pp-desc"></p>
+      <div class="size-lbl">Оберіть розмір</div>
+      <div class="size-row">
+        <button class="sz" onclick="pickSz(this)">XS</button>
+        <button class="sz" onclick="pickSz(this)">S</button>
+        <button class="sz active" onclick="pickSz(this)">M</button>
+        <button class="sz" onclick="pickSz(this)">L</button>
+        <button class="sz" onclick="pickSz(this)">XL</button>
+      </div>
+      <button class="btn-buy" onclick="addCart()">Додати в кошик</button>
+      <button class="btn-tryon" onclick="openTryOn()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 3C9.5 3 7.5 5 7.5 7.5c0 1.5.7 2.8 1.8 3.7C6.3 12.5 5 14.8 5 17h14c0-2.2-1.3-4.5-4.3-5.8 1.1-.9 1.8-2.2 1.8-3.7C16.5 5 14.5 3 12 3z"/>
+        </svg>
+        <span>Приміряти онлайн — AI примірка</span>
+      </button>
+      <div class="pp-features">
+        <div class="pp-feat"><span class="pp-feat-icon">✦</span><span>Безкоштовна доставка від 2 000 ₴</span></div>
+        <div class="pp-feat"><span class="pp-feat-icon">✦</span><span>Повернення протягом 30 днів</span></div>
+        <div class="pp-feat"><span class="pp-feat-icon">✦</span><span>AI примірка — дізнайтесь як виглядає саме на вас</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRY-ON POPUP -->
+<div class="tryon-bg" id="tryonBg">
+  <div class="tryon-box" id="tryonBox">
+    <button class="tryon-close" onclick="closeTryOn()">✕</button>
+
+    <!-- Upload -->
+    <div class="tryon-step active" id="sUpload">
+      <div class="tryon-eyebrow">TryOn Studio · AI примірка</div>
+      <h3 class="tryon-title">Приміряйте на себе</h3>
+      <p class="tryon-sub">Завантажте своє фото — AI покаже як виглядатиме цей товар саме на вас.</p>
+      <div class="tryon-product">
+        <img id="to-img" src="" alt="">
+        <div>
+          <div class="tryon-pname" id="to-name"></div>
+          <div class="tryon-pprice" id="to-price"></div>
+        </div>
+      </div>
+      <div class="upload-zone">
+        <input type="file" accept="image/*" id="fileIn" onchange="onFile(event)">
+        <span class="upload-icon">↑</span>
+        <div class="upload-txt"><strong>Завантажте своє фото</strong><br>або перетягніть сюди</div>
+      </div>
+      <ul class="upload-tips">
+        <li>Стійте прямо, щоб було видно все тіло</li>
+        <li>Рівне освітлення, нейтральний фон</li>
+        <li>JPG або PNG, до 10 МБ</li>
+      </ul>
+    </div>
+
+    <!-- Processing -->
+    <div class="tryon-step" id="sProc">
+      <div class="proc-wrap">
+        <div class="spinner"></div>
+        <div class="proc-txt">Примірюємо на вас…</div>
+        <div class="proc-sub">Зазвичай 15–30 секунд</div>
+      </div>
+    </div>
+
+    <!-- Result — великий -->
+    <div class="tryon-step" id="sResult">
+      <div class="tryon-eyebrow">Результат примірки</div>
+      <h3 class="tryon-title" style="margin-bottom:20px">Ось як це виглядає на вас</h3>
+      <div class="result-layout">
+        <div class="result-col">
+          <div class="result-lbl">Ваше фото</div>
+          <img class="result-img" id="rOrig" src="" alt="">
+        </div>
+        <div class="result-col">
+          <div class="result-lbl">Після примірки</div>
+          <img class="result-img" id="rTryon" src="" alt="">
+        </div>
+      </div>
+      <div class="result-actions">
+        <button class="btn-cart-r" onclick="addCartTryon()">
+          Додати в кошик
+        </button>
+        <button class="btn-retry-r" onclick="retryTryon()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M1 4v6h6M23 20v-6h-6"/>
+            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/>
+          </svg>
+          Приміряти інше фото
+        </button>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="tryon-step" id="sErr">
+      <div class="err-wrap">
+        <span class="err-icon">✕</span>
+        <div class="err-txt">Не вдалося обробити фото</div>
+        <div class="err-sub" id="errMsg">Спробуйте інше фото — в повний зріст, рівне освітлення, нейтральний фон.</div>
+        <button class="btn-retry-e" onclick="retryTryon()">Спробувати ще раз</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TRYON_WH = 'https://polishchuk.app.n8n.cloud/webhook/tryon-widget';
+const ANA_WH   = 'https://polishchuk.app.n8n.cloud/webhook/tryon-analytics';
+const BRAND    = 'demo_vovk';
+
+const PRODUCTS = [
+  {id:'SUIT-001',  cat:'Костюми', name:'Лляний костюм-кімоно чорний',
+   price:'7 800 ₴',
+   desc:'Стильний костюм у стилі кімоно з натурального льону. Жакет із запахом і поясом у комплекті, широкі прямі брюки. Ідеально для ділових та вечірніх образів.',
+   img:'img-suit.webp',   garment:'img-suit.webp'},
+  {id:'JACK-001',  cat:'Жакети', name:'Класичний жакет білий',
+   price:'4 900 ₴',
+   desc:'Приталений жакет із натурального льону з лацканами і ґудзиками. Структурований крій підкреслює силует. Підходить як для офісу, так і для виходу.',
+   img:'img-jacket.webp', garment:'img-jacket.webp'},
+  {id:'SKIRT-001', cat:'Спідниці', name:'Міні-спідниця біла + топ-бюстьє',
+   price:'3 200 ₴',
+   desc:'Комплект: топ-бюстьє чорний з чашками і спідниця А-силуету молочного кольору з натурального льону. Ідеальний контраст кольорів.',
+   img:'img-skirt.webp',  garment:'img-skirt.webp'},
+  {id:'DRESS-001', cat:'Сукні', name:'Лляна сукня максі молочна',
+   price:'6 400 ₴',
+   desc:'Елегантна максі-сукня з натурального льону молочного кольору. Короткий рукав, V-подібний виріз, пишна спідниця з защипами. Є кишені.',
+   img:'img-dress.webp',  garment:'img-dress.webp'},
+  {id:'TOP-001',   cat:'Топи', name:'Топ на бретелях хакі',
+   price:'2 100 ₴',
+   desc:'Приталений топ на широких бретелях з натурального льону кольору хакі. Баска знизу, застібка на ґудзиках по центру. Підходить під спідницю або брюки.',
+   img:'img-top.webp',    garment:'img-top.webp'},
+];
+
+let cur = null;
+let sid = 'sess_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+let cartN = 0;
+let photoB64 = null, photoSrc = null;
+
+function goTo(view, productId) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+view).classList.add('active');
+  window.scrollTo(0,0);
+  if(view==='product'&&productId) renderProduct(productId);
+  location.hash = productId ? 'product/'+productId : 'catalog';
+}
+
+function renderProduct(id){
+  cur = PRODUCTS.find(p=>p.id===id);
+  if(!cur)return;
+  document.getElementById('pp-img').src = cur.img;
+  document.getElementById('pp-cat').textContent = cur.cat;
+  document.getElementById('pp-name').textContent = cur.name;
+  document.getElementById('pp-price').textContent = cur.price;
+  document.getElementById('pp-desc').textContent = cur.desc;
+  document.getElementById('pp-breadcat').textContent = cur.cat;
+  document.title = cur.name+' — VOVK';
+}
+
+function renderGrid(){
+  document.getElementById('grid').innerHTML = PRODUCTS.map(p=>`
+    <div class="p-card" onclick="goTo('product','${p.id}')">
+      <div class="p-img-wrap">
+        <img class="p-img" src="${p.img}" alt="${p.name}" loading="lazy">
+        <div class="p-overlay"><div class="p-hint">Переглянути →</div></div>
+      </div>
+      <div class="p-body">
+        <div class="p-cat">${p.cat}</div>
+        <div class="p-name">${p.name}</div>
+        <div class="p-price"><strong>${p.price}</strong></div>
+      </div>
+    </div>`).join('');
+}
+
+function pickSz(btn){document.querySelectorAll('.sz').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
+function addCart(){cartN++;document.getElementById('cartBadge').textContent=cartN;toast(cur.name+' додано в кошик')}
+
+// TryOn
+function openTryOn(){
+  if(!cur)return;
+  document.getElementById('to-img').src=cur.img;
+  document.getElementById('to-name').textContent=cur.name;
+  document.getElementById('to-price').textContent=cur.price;
+  document.getElementById('tryonBox').classList.remove('result-mode');
+  showStep('sUpload');
+  document.getElementById('tryonBg').classList.add('open');
+  track('tryon_opened',cur.id);
+}
+
+function closeTryOn(){
+  document.getElementById('tryonBg').classList.remove('open');
+  photoB64=null; photoSrc=null;
+}
+
+function showStep(id){
+  ['sUpload','sProc','sResult','sErr'].forEach(s=>document.getElementById(s).classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // Розширюємо попап для результату
+  const box = document.getElementById('tryonBox');
+  if(id==='sResult') box.classList.add('result-mode');
+  else box.classList.remove('result-mode');
+}
+
+async function onFile(e){
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=async ev=>{photoB64=ev.target.result;photoSrc=ev.target.result;await doTryOn()};
+  r.readAsDataURL(f);
+}
+
+async function doTryOn(){
+  showStep('sProc');
+  track('photo_uploaded',cur.id);
+  try{
+    // garmentUrl — відносний шлях не підійде для n8n, тому треба абсолютний
+    const baseUrl = window.location.href.replace(/[^/]*$/, '');
+    const garmentUrl = baseUrl + cur.garment;
+
+    const res=await fetch(TRYON_WH,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({personImageBase64:photoB64,garmentImageUrl:garmentUrl,productId:cur.id,sessionId:sid})});
+    const d=await res.json();
+    if(d.success&&d.resultUrl){
+      document.getElementById('rOrig').src=photoSrc;
+      document.getElementById('rTryon').src=d.resultUrl;
+      showStep('sResult');
+      track('result_shown',cur.id);
+    } else throw new Error(d.error||'Помилка сервера');
+  }catch(err){
+    document.getElementById('errMsg').textContent=err.message||'Спробуйте інше фото.';
+    showStep('sErr');
+  }
+}
+
+function retryTryon(){
+  photoB64=null; photoSrc=null;
+  document.getElementById('fileIn').value='';
+  showStep('sUpload');
+}
+
+function addCartTryon(){
+  cartN++;
+  document.getElementById('cartBadge').textContent=cartN;
+  track('added_to_cart',cur.id);
+  toast(cur.name+' додано в кошик');
+  closeTryOn();
+}
+
+async function track(type,pid){
+  try{await fetch(ANA_WH,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({eventType:type,productId:pid,sessionId:sid,brandId:BRAND,timestamp:new Date().toISOString()})})}
+  catch(e){}
+}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
+
+function handleHash(){
+  const h=location.hash.replace('#','');
+  if(h.startsWith('product/')){const id=h.split('/')[1];goTo('product',id)}
+  else goTo('catalog');
+}
+
+renderGrid();
+handleHash();
+window.addEventListener('hashchange',handleHash);
+</script>
+</body>
+</html>
